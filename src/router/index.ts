@@ -1,8 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+import TripView from '../views/TripView.vue'
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [],
+export default createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', component: HomeView },
+    { path: '/trip', component: TripView },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
+  ],
 })
-
-export default router
