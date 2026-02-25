@@ -4,19 +4,19 @@ import type { Interest, Preferences } from '../types/preferences'
 import { fetchPoisByCountry } from '../services/poi/FakePoiService'
 import { generateItinerary } from '../domain/optimizer/generateItinerary'
 
-type FieldErrors = { country?: string; days?: string }
+type FieldErrors = { country?: string; days?: string, interests?: string}
 
-const defaultPrefs: Preferences = {
-  interests: ['nature', 'culture'],
+const initialPreferences: Preferences = {
+  interests: [] as Interest[],
   pace: 'balanced',
   maxPoisPerDay: 3,
 }
 
 export const useTripStore = defineStore('trip', {
   state: () => ({
-    country: 'Colombia',
-    days: 10,
-    preferences: { ...defaultPrefs },
+    country: '',
+    days: 0,
+    preferences: { ...initialPreferences },
 
     itinerary: null as Itinerary | null,
     loading: false,
@@ -35,6 +35,9 @@ export const useTripStore = defineStore('trip', {
       if (c.length < 2) errors.country = 'Please enter a country name.'
       if (!Number.isFinite(d) || d < 3) errors.days = 'Please enter at least 3 days.'
       if (d > 30) errors.days = 'Please keep trips under 30 days for now.'
+      if (this.preferences.interests.length === 0) {
+        errors.interests = 'Please select at least one interest.'
+      }
 
       this.fieldErrors = errors
       return Object.keys(errors).length === 0
@@ -50,8 +53,16 @@ export const useTripStore = defineStore('trip', {
       this.touched = true
       this.error = null
       this.itinerary = null
-
+      
       if (!this.validate()) return
+      
+      if (this.preferences.pace === 'relaxed') {
+        this.preferences.maxPoisPerDay = 2
+      } else if (this.preferences.pace === 'balanced') {
+        this.preferences.maxPoisPerDay = 3
+      } else {
+        this.preferences.maxPoisPerDay = 4
+      }
 
       try {
         this.loading = true

@@ -27,7 +27,6 @@
           class="item"
         >
           <strong>{{ t.fromCity }} → {{ t.toCity }}</strong>
-          <span> </span>
           <span class="muted">
             {{ t.distanceKm }} km • {{ t.durationMin }} min
           </span>

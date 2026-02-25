@@ -1,9 +1,15 @@
 <script setup lang="ts">
   import { useTripStore } from '../stores/tripStore'
   import type { Interest } from '../types/preferences'
+  import { computed } from 'vue'
   const store = useTripStore()
 
   const interests: Interest[] = ['nature','culture','food','history','nightlife','adventure','relax']
+  const canGenerate = computed(() =>
+    store.country.trim().length > 1 &&
+    store.days >= 3 &&
+    store.preferences.interests.length > 0
+  )
 </script>
 
 <template>
@@ -15,7 +21,7 @@
         class="input"
         :class="{ invalid: store.touched && !!store.fieldErrors.country }"
         v-model="store.country"
-        placeholder='Try: "Austria"'
+        placeholder='Country you want to go'
         autocomplete="off"
       />
       <p v-if="store.touched && store.fieldErrors.country" class="hint error">{{ store.fieldErrors.country }}</p>
@@ -56,13 +62,8 @@
       <p class="hint">Select what you enjoy — the itinerary will prioritize matching POIs.</p>
     </div>
 
-    <div class="row">
-      <label class="label" for="max">POIs per day</label>
-      <input id="max" class="input" type="number" min="1" max="6" v-model.number="store.preferences.maxPoisPerDay" />
-    </div>
-
     <div class="actions">
-      <button class="btn primary" type="submit" :disabled="store.loading">
+      <button :disabled="!canGenerate || store.loading" class="btn primary" type="submit">
         <span v-if="store.loading" class="spinner"></span>
         {{ store.loading ? 'Generating…' : 'Generate trip' }}
       </button>
